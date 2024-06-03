@@ -1,7 +1,7 @@
 class TodoOperationService {
     constructor(){
      if (new.target === TodoOperationService) {
-       throw new Error("Cannot instantiate abstract class Vehicle.");
+       throw new Error("Cannot instantiate abstract TodoOperationService.");
    }
     }
       
