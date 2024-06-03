@@ -6,6 +6,7 @@ class TodoService extends TodoOperationService {
         super();
     }
 
+    //create  new  task
     async create(data) {
         const todo = await new Promise((resolve, reject) => {
             const newTodo = new TODO(data);
@@ -58,7 +59,7 @@ class TodoService extends TodoOperationService {
         return deleteTask;
     }
 
-    // Check if task exists by id or name
+    // Check if task exists by id 
     async taskExistID(id) {
         
             // Check if the identifier is a valid MongoDB ObjectId
@@ -70,6 +71,7 @@ class TodoService extends TodoOperationService {
             return isExist;
     }
 
+    // Check if task exists by name
     async taskExistName(title) {
         const isExist = await new Promise((resolve, reject) => {
             TODO.findOne({ title: title })

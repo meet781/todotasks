@@ -4,7 +4,17 @@ const todoService = new TodoService();
 const { codes } = require("../helper/responseCode");
 const ResponseService = require("../helper/response.service");
 
+/**
+ * Controller class responsible for handling Todo Service Operation.
+ */
 class TodoController {
+  /**
+   * 
+   * @param {*} req   The HTTP request object.
+   * @param {*} res   The HTTP response object.
+   * @param {*} next  The next MiddleWare function to execute
+   * @returns  create new task
+   */
   static async createTask(req, res, next) {
     try {
       const payload = req.body;
@@ -46,6 +56,10 @@ class TodoController {
     }
   }
 
+  /**
+   * retrive single task
+   */
+
   static async getTask(req, res, next) {
     try {
       const id = req.params.id;
@@ -74,6 +88,10 @@ class TodoController {
     }
   }
 
+  /**
+   * retrives all tasks
+   */
+
   static async getAllTask(req, res, next) {
     try {
       const tasks = await todoService.getAll();
@@ -101,10 +119,15 @@ class TodoController {
     }
   }
 
+/**
+ * update record in database
+ */
+
   static async updateTask(req, res, next) {
     try {
       const id = req.params.id;
       const payload = req.body;
+      
 
       const task = await todoService.taskExistID(id);
       if (!task) {
@@ -153,6 +176,9 @@ class TodoController {
       next(error);
     }
   }
+ /**
+  * delete a record from the database
+  */
 
   static async deleteTask(req, res, next) {
     try {
