@@ -8,25 +8,26 @@ class TodoController {
   static async createTask(req, res, next) {
     try {
       const payload = req.body;
-     
-      const isExist = await todoService.taskExist(payload.title);
+
+      const isExist = await todoService.taskExistName(payload.title);
 
       if (isExist) {
         return ResponseService.send(
           {
             status: ResponseService.getCode("BAD_REQUEST"),
-            data: "Task already exists",
+            data: "Task already exist",
           },
           res
         );
       }
+
       const task = await todoService.create(payload);
 
       if (!task) {
         return ResponseService.send(
           {
             status: ResponseService.getCode("BAD_REQUEST"),
-            message: "Task not created",
+            data: "Task not created",
           },
           res
         );
@@ -51,10 +52,23 @@ class TodoController {
       const task = await todoService.get(id);
 
       if (!task) {
-        return res.status(codes.BAD_REQUEST[0]).json({
-          message: codes.BAD_REQUEST[1],
-        });
+        return ResponseService.send(
+          {
+            status: ResponseService.getCode("NOT_FOUND"),
+            data: "Task not found",
+          },
+          res
+        );
       }
+
+      return ResponseService.send(
+        {
+          status: ResponseService.getCode("OK"),
+          data: task,
+          message: "Task retrieved successfully",
+        },
+        res
+      );
     } catch (error) {
       next(error);
     }
@@ -65,15 +79,23 @@ class TodoController {
       const tasks = await todoService.getAll();
 
       if (!tasks.length) {
-        return res.status(codes.BAD_REQUEST[0]).json({
-          message: codes.BAD_REQUEST[1],
-        });
+        return ResponseService.send(
+          {
+            status: ResponseService.getCode("NOT_FOUND"),
+            data: "Tasks not found",
+          },
+          res
+        );
       }
 
-      return res.status(200).json({
-        message: "Tasks retrieved successfully",
-        data: tasks,
-      });
+      return ResponseService.send(
+        {
+          status: ResponseService.getCode("OK"),
+          data: tasks,
+          message: "All Tasks retrieved successfully",
+        },
+        res
+      );
     } catch (error) {
       next(error);
     }
@@ -83,18 +105,50 @@ class TodoController {
     try {
       const id = req.params.id;
       const payload = req.body;
-      const updateData = await todoService.update(id, payload);
 
-      if (!updateData) {
-        return res.status(codes.NOT_MODIFIED[0]).json({
-          message: codes.NOT_MODIFIED[1],
-        });
+      const task = await todoService.taskExistID(id);
+      if (!task) {
+        return ResponseService.send(
+          {
+            status: ResponseService.getCode("NOT_FOUND"),
+            data: "Task not found",
+          },
+          res
+        );
       }
 
-      return res.status(200).json({
-        message: "Task updated successfully",
-        data: updateData,
-      });
+      if (payload.title) {
+        const isExist = await todoService.taskExistName(payload.title);
+        if (isExist || task.title === payload.title) {
+          return ResponseService.send(
+            {
+              status: ResponseService.getCode("BAD_REQUEST"),
+              data: "For Update This Title not allowed",
+            },
+            res
+          );
+        }
+      }
+
+      const updateData = await todoService.update(id, payload);
+      if (!updateData) {
+        return ResponseService.send(
+          {
+            status: ResponseService.getCode("NOT_MODIFIED"),
+            data: "Task not updated",
+          },
+          res
+        );
+      }
+
+      return ResponseService.send(
+        {
+          status: ResponseService.getCode("OK"),
+          data: updateData,
+          message: "Task updated successfully",
+        },
+        res
+      );
     } catch (error) {
       next(error);
     }
@@ -103,18 +157,32 @@ class TodoController {
   static async deleteTask(req, res, next) {
     try {
       const id = req.params.id;
+      const isExist = await todoService.taskExistID(id);
+      if (!isExist) {
+        return ResponseService.send(
+          {
+            status: ResponseService.getCode("NOT_FOUND"),
+            data: "Task not found",
+          },
+          res
+        );
+      }
+
       const deleteData = await todoService.delete(id);
 
       if (!deleteData) {
-        return res.status(codes.BAD_REQUEST[0]).json({
-          message: codes.BAD_REQUEST[1],
-        });
+        return ResponseService.send({
+            status : ResponseService.getCode("NOT_FOUND") ,
+            data : "Task Not Found"
+        } , res )
       }
+      
+      return  ResponseService.send({
+        status : ResponseService.getCode("OK"),
+        data : deleteData,
+        message : "Task deleted successfully"
+      }, res )
 
-      return res.status(200).json({
-        message: "Task deleted successfully",
-        data: deleteData,
-      });
     } catch (error) {
       next(error);
     }

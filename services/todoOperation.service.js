@@ -26,10 +26,13 @@ class TodoOperationService {
        throw new TypeError('Method "delete" must be implemented');
      }
 
-     taskExist(){
+     taskExistID(){
        throw new TypeError('Method "taskExists" must be implemented');
      }
 
+     taskExistName(){
+       throw new TypeError('Method "taskExists" must be implemented');
+     }
 }
 
 module.exports = TodoOperationService;

@@ -1,53 +1,83 @@
-
 const TodoOperationService = require("./todoOperation.service");
 const TODO = require("../model/todo");
 
 class TodoService extends TodoOperationService {
-    constructor () {
+    constructor() {
         super();
     }
+
     async create(data) {
-        const todo = new TODO(data);
-        return await todo.save();
-      }
-    
-      // Get record by id
-      async get(id) {
-        return await TODO.findById(id);
-      }
-    
-      // Get all records
-      async getAll() {
-        return await TODO.find();
-      }
-    
-      // Update record by id
-      async update(id, data) {
-        return await TODO.findByIdAndUpdate(id, data);
-      }
-    
-      // Delete record by id
-      async delete(id) {
-        return await TODO.findByIdAndDelete(id);
-      }
-    
-      // Check if task exists by id or name
-      async taskExist(identifier) {
-        console.log("🚀 ~ TodoServices ~ taskExist ~ identifier:", identifier)
+        const todo = await new Promise((resolve, reject) => {
+            const newTodo = new TODO(data);
+            newTodo
+                .save()
+                .then((newTodo) => resolve(newTodo))
+                .catch((err) => reject(err));
+        });
+        return todo;
+    }
+
+    // Get record by id
+
+    async get(id) {
+        const task = await new Promise((resolve, reject) => {
+            TODO.findById(id)
+                .then((todo) => resolve(todo))
+                .catch((err) => reject(err));
+        });
+        return task;
+    }
+
+    // Get all records
+    async getAll() {
+        const tasks = await new Promise((resolve, reject) => {
+            TODO.find()
+                .then((tasks) => resolve(tasks))
+                .catch((err) => reject(err));
+        });
+        return tasks;
+    }
+
+    // Update record by id
+    async update(id, data) {
+        const updateTask = await new Promise((resolve, reject) => {
+            TODO.findByIdAndUpdate(id, data, { new: true })
+                .then((update) => resolve(update))
+                .catch((err) => reject(err));
+        });
+        return updateTask;
+    }
+
+    // Delete record by id
+    async delete(id) {
+        const deleteTask = await new Promise((resolve, reject) => {
+            TODO.findByIdAndDelete(id)
+                .then((deleteTask) => resolve(deleteTask))
+                .catch((err) => reject(err));
+        });
+        return deleteTask;
+    }
+
+    // Check if task exists by id or name
+    async taskExistID(id) {
         
-    
-        if (typeof identifier === 'string' && identifier.match(/^[0-9a-fA-F]{24}$/)) {
-          // Check if the identifier is a valid MongoDB ObjectId
-          return await TODO.findById(identifier)
-        } else {
-          // Otherwise, assume it is a title
-          return await TODO.findOne({ title: identifier });
-        }
-      
-      }
+            // Check if the identifier is a valid MongoDB ObjectId
+            const isExist = await new Promise((resolve, reject) => {
+                TODO.findById(id)
+                    .then((todo) => resolve(todo))
+                    .catch((err) => reject(err));
+            });
+            return isExist;
+    }
+
+    async taskExistName(title) {
+        const isExist = await new Promise((resolve, reject) => {
+            TODO.findOne({ title: title })
+               .then((todo) => resolve(todo))
+               .catch((err) => reject(err));
+        });
+        return isExist;
+    }
 }
 
-module.exports = TodoService
-
-
-
+module.exports = TodoService;
